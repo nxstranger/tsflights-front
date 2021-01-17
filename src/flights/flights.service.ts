@@ -1,26 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { CreateFlightDto } from './dto/create-flight.dto';
 import { UpdateFlightDto } from './dto/update-flight.dto';
+import {InjectRepository} from "@nestjs/typeorm";
+import {Flight} from "./entities/flight.entity";
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class FlightsService {
-  create(createFlightDto: CreateFlightDto) {
-    return 'This action adds a new flight';
+  constructor(
+      @InjectRepository(Flight)
+      private flightRepository: Repository<Flight>,
+  ) {}
+  async findAll() {
+    return this.flightRepository.find();
   }
 
-  findAll() {
-    return `This action returns all flights`;
+  async findOne(id: number) {
+    return this.flightRepository.findOne(id);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} flight`;
+  async create(createFlightDto: CreateFlightDto): Promise<Flight> {
+    return this.flightRepository.save(createFlightDto);
   }
 
-  update(id: number, updateFlightDto: UpdateFlightDto) {
-    return `This action updates a #${id} flight`;
+  async update(id: number, updateFlightDTO: UpdateFlightDto): Promise<Flight> {
+    await this.flightRepository.update(id, updateFlightDTO);
+    return this.flightRepository.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} flight`;
+  async remove(id: number) {
+    return this.flightRepository.delete(id);
   }
 }
